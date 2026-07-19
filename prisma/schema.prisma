@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+model Fotos{
+  id          String   @id @default(cuid()) // Cria um ID único de texto para cada memória
+  titulo      String?  // Um título para a foto (opcional)
+  descricao   String?  // Um texto ou legenda sobre aquele momento (opcional)
+  imageUrl    String   // O link da imagem (obrigatório)
+  dataMomento DateTime? // A data real de quando a foto foi tirada (opcional)
+  createdAt   DateTime @default(now()) // Data de quando você adicionou no site 
+}
+model Memorias{
+  id    Int    @id @default(autoincrement())
+  titulo String 
+  descricao String 
+}
