@@ -20,7 +20,7 @@ export async function salvarFotoNoBanco(formData: FormData) {
         titulo: titulo || null,
         descricao: descricao || null,
         imageUrl: imageUrl,
-        dataFoto: dataFoto || null,
+        datafoto: dataFoto ? new Date(dataFoto) : null,
       },
     })
 
