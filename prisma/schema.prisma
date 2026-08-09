@@ -16,7 +16,7 @@ model Fotos{
   titulo      String?  // Um título para a foto (opcional)
   descricao   String?  // Um texto ou legenda sobre aquele momento (opcional)
   imageUrl    String   // O link da imagem (obrigatório)
-  dataMomento DateTime? // A data real de quando a foto foi tirada (opcional)
+  datafoto DateTime? // A data real de quando a foto foi tirada (opcional)
   createdAt   DateTime @default(now())
   favorito    Boolean  @default(false) // Data de quando você adicionou no site 
 }
