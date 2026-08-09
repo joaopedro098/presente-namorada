@@ -1,17 +1,15 @@
 "use server"
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "../../../lib/prisma"; // Duplo ponto e vírgula removido daqui
+import { prisma } from "../../../lib/prisma";
 
 export async function criarMemoria(formData: FormData) {
   // 1. Captura os dados enviados pelo formulário
   const titulo = formData.get("titulo") as string;
   const descricao = formData.get("descricao") as string;
 
-  // AJUSTE 1: Evite usar `throw new Error` diretamente aqui se quiser que o catch capture de forma amigável
   if (!titulo || !descricao) {
     return { success: false, error: "Todos os campos são obrigatórios!" };
-
   }
 
   try {
@@ -23,8 +21,6 @@ export async function criarMemoria(formData: FormData) {
       },
     });
 
-    // AJUSTE 2: Certifique-se de que o caminho aqui corresponde à rota exata onde o mural está renderizado.
-    // Se o seu mural fica na página inicial, use "/". Se fica em /mural, use "/mural".
     revalidatePath("/"); 
     
     return { success: true };
@@ -49,4 +45,20 @@ export async function listarMemorias() {
   }
 }
 
+// Alterna o estado de favorito de uma memória (true <-> false)
+export async function toggleFavoritoMemoria(id: number, estadoAtual: boolean) {
+  try {
+    await prisma.memorias.update({
+      where: { id },
+      data: {
+        favorito: !estadoAtual,
+      },
+    });
 
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao alternar favorito da memória:", error);
+    return { success: false, error: "Erro ao favoritar no banco de dados." };
+  }
+}
