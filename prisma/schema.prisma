@@ -31,7 +31,7 @@ model Memorias{
 model carta {
   id    Int    @id @default(autoincrement())
   titulo String 
-  conteudo String 
+  conteudo String  @db.Text
   favorito Boolean @default(false)
   createdAt   DateTime @default(now())
   remetente String
