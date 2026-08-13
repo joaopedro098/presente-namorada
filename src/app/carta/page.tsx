@@ -138,6 +138,7 @@ Nós teremos dia bons e ruins, temos dias felizes e tristes, mas que os dias bon
           <span className="text-xs font-semibold text-pink-700 underline text-right pt-2">
             Clique para ler inteira...
           </span>
+
         </Card>
 
         {/* --- CARTAS CRIADAS DINAMICAMENTE NO BANCO DE DADOS --- */}
@@ -145,22 +146,21 @@ Nós teremos dia bons e ruins, temos dias felizes e tristes, mas que os dias bon
           <Card 
             key={carta.id} 
             onClick={() => setCartaExpandida(carta)}
-            className="p-6 bg-white hover:bg-pink-50/30 transition-all cursor-pointer shadow-md hover:shadow-xl border border-pink-200 rounded-2xl flex flex-col justify-between gap-4 min-h-[500px] relative group"
+            className="p-6 bg-pink-200 hover:bg-pink-250 transition-all cursor-pointer shadow-lg hover:shadow-xl border-2 border-pink-400 rounded-2xl flex flex-col justify-between gap-4 min-h-[500px] relative group"
           >
             <div>
-              <div className="flex justify-between items-center border-b border-pink-100 pb-3 mb-3">
-                <span className="text-xs text-pink-500 flex items-center gap-1 font-medium bg-pink-50 px-2.5 py-1 rounded-md border border-pink-100">
+              <div className="flex justify-between items-center border-b border-pink-300 pb-3 mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-pink-700 bg-pink-300/60 px-3 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
                   {new Date(carta.createdAt).toLocaleDateString('pt-BR', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
                   })}
                 </span>
+                
                 <div className="flex items-center gap-2">
-                  <Maximize2 className="w-4 h-4 text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Maximize2 className="w-4 h-4 text-pink-600 opacity-60 group-hover:opacity-100 transition-opacity" />
                   
                   {/* Botão de Favoritar */}
                   <button 
@@ -171,8 +171,8 @@ Nós teremos dia bons e ruins, temos dias felizes e tristes, mas que os dias bon
                     <Heart 
                       className={`w-5 h-5 transition-colors ${
                         carta.favorito 
-                          ? 'text-pink-500 fill-pink-500' 
-                          : 'text-pink-300 hover:text-pink-400'
+                          ? 'text-pink-600 fill-pink-600' 
+                          : 'text-pink-400 hover:text-pink-600'
                       }`} 
                     />
                   </button>
@@ -181,25 +181,26 @@ Nós teremos dia bons e ruins, temos dias felizes e tristes, mas que os dias bon
 
               {/* Remetente & Destinatário Dinâmicos */}
               {(carta.remetente || carta.destinatario) && (
-                <div className="flex flex-wrap gap-2 text-xs font-medium text-pink-700 mb-3 bg-pink-50 p-2 rounded-lg border border-pink-100">
+                <div className="flex flex-wrap gap-2 text-xs font-medium text-pink-800 mb-3 bg-pink-300/40 p-2 rounded-lg">
                   {carta.remetente && <span><strong>De:</strong> {carta.remetente}</span>}
                   {carta.remetente && carta.destinatario && <span>•</span>}
                   {carta.destinatario && <span><strong>Para:</strong> {carta.destinatario}</span>}
                 </div>
               )}
 
-              <h3 className="text-xl font-bold text-pink-800 mb-2">
+              <h3 className="text-2xl font-bold text-pink-900 mb-3">
                 {carta.titulo}
               </h3>
 
-              <p className="line-clamp-[10] text-gray-700 whitespace-pre-line leading-relaxed text-sm">
+              <p className="line-clamp-[10] text-pink-950 text-base leading-relaxed whitespace-pre-line">
                 {carta.conteudo}
               </p>
             </div>
 
-            <span className="text-xs font-semibold text-pink-500 underline text-right pt-2">
+            <span className="text-xs font-semibold text-pink-700 underline text-right pt-2">
               Clique para ler inteira...
             </span>
+
           </Card>
         ))}
 
