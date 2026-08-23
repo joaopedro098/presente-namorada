@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";  
 import Link from "next/link";
 
-import { Heart, Mail, Image as ImageIcon, Sparkles,  Clock } from "lucide-react"
+import { Heart, Mail, Image as ImageIcon, Sparkles,  Clock,  HouseHeart } from "lucide-react"
 
 export default function Header() {
   return (
@@ -60,6 +60,12 @@ export default function Header() {
           <Link href="/contagem" className="flex items-center gap-2">
             < Clock className="w-4 h-4 text-pink-100" />
             <span>contagem</span>
+          </Link>
+        </Button>
+         <Button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-medium py-2 px-5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+        <Link href="/favoritos" className="flex items-center gap-2">
+            <HouseHeart className="w-4 h-4 text-pink-100" />
+            <span>Favoritos</span>
           </Link>
         </Button>
 
