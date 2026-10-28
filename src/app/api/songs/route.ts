@@ -1,9 +1,6 @@
-import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
-
-const maxFileSize = 50 * 1024 * 1024;
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -16,23 +13,25 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-// POST: Envia o áudio e salva os dados no Prisma
+// POST: Registra no Prisma um arquivo já enviado diretamente ao Storage.
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
-    const title = formData.get("title");
-    const artist = formData.get("artist");
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { error: "Os dados da música estão inválidos." },
+        { status: 400 },
+      );
+    }
+    const { title, artist, path } = body as Record<string, unknown>;
 
     if (
-      !(file instanceof File) ||
-      !title ||
-      !artist ||
       typeof title !== "string" ||
-      typeof artist !== "string"
+      typeof artist !== "string" ||
+      typeof path !== "string"
     ) {
       return NextResponse.json(
-        { error: "Título, artista e arquivo são obrigatórios." },
+        { error: "Título, artista e arquivo de áudio são obrigatórios." },
         { status: 400 },
       );
     }
@@ -44,49 +43,29 @@ export async function POST(request: Request) {
       );
     }
 
-    if (file.size === 0 || !file.type.startsWith("audio/")) {
+    if (title.trim().length > 120 || artist.trim().length > 120) {
       return NextResponse.json(
-        { error: "Escolha um arquivo de áudio válido." },
+        { error: "Título e artista devem ter no máximo 120 caracteres." },
         { status: 400 },
       );
     }
 
-    if (file.size > maxFileSize) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(mp3|wav|m4a|ogg|aac|flac|opus|wma)$/i.test(
+        path,
+      )
+    ) {
       return NextResponse.json(
-        { error: "O arquivo deve ter no máximo 50 MB." },
-        { status: 413 },
+        { error: "O caminho do arquivo de áudio é inválido." },
+        { status: 400 },
       );
     }
 
-    // Converter arquivo para Buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const supabase = getSupabaseClient();
-
-    // Formatar nome de arquivo seguro
-    const safeOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const filename = `${randomUUID()}-${safeOriginalName}`;
-
-    // 1. Upload para o Supabase Storage (no Bucket 'songs')
-    const { error: uploadError } = await supabase.storage
-      .from("songs")
-      .upload(filename, buffer, {
-        contentType: file.type,
-      });
-
-    if (uploadError) {
-      return NextResponse.json(
-        {
-          error: `Erro no upload: ${uploadError.message}. Verifique as permissões de RLS do Bucket.`,
-        },
-        { status: 400 },
-      );
-    }
-
-    // 2. Pegar a URL pública do áudio no Supabase
+    // O browser envia o arquivo ao Storage; esta rota só grava a faixa no banco.
     const { data: publicUrlData } = supabase.storage
       .from("songs")
-      .getPublicUrl(filename);
+      .getPublicUrl(path);
 
     const audioUrl = publicUrlData.publicUrl;
 

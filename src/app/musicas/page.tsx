@@ -1,5 +1,6 @@
 "use client";
 
+import { createClient } from "@supabase/supabase-js";
 import { Heart, Loader2, Music, Music2, Upload, User } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +22,17 @@ interface Song {
   url: string;
 }
 
-const maxFileSize = 50 * 1024 * 1024;
+const maxFileSize = 100 * 1024 * 1024;
+const allowedAudioExtensions = [
+  "mp3",
+  "wav",
+  "m4a",
+  "ogg",
+  "aac",
+  "flac",
+  "opus",
+  "wma",
+];
 
 export default function MusicasPage() {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -65,16 +76,50 @@ export default function MusicasPage() {
       return;
     }
 
+    const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!allowedAudioExtensions.includes(extension)) {
+      setError("Escolha um arquivo de áudio válido, como MP3, WAV ou M4A.");
+      return;
+    }
+
     if (file.size > maxFileSize) {
-      setError("O arquivo deve ter no máximo 50 MB.");
+      setError("O arquivo deve ter no máximo 100 MB.");
       return;
     }
 
     setLoading(true);
     try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error(
+          "A configuração de armazenamento de músicas está incompleta.",
+        );
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const storagePath = `${crypto.randomUUID()}.${extension || "mp3"}`;
+      const { error: uploadError } = await supabase.storage
+        .from("songs")
+        .upload(storagePath, file, {
+          contentType: file.type || `audio/${extension}`,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw new Error(
+          `Não foi possível enviar o arquivo ao Supabase: ${uploadError.message}`,
+        );
+      }
+
       const response = await fetch("/api/songs", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formData.get("title"),
+          artist: formData.get("artist"),
+          path: storagePath,
+        }),
       });
       const result = await response.json();
       if (!response.ok)
@@ -164,12 +209,12 @@ export default function MusicasPage() {
                     id="file"
                     name="file"
                     type="file"
-                    accept="audio/*"
+                    accept=".mp3,.wav,.m4a,.ogg,.aac,.flac,.opus,.wma,audio/*"
                     required
                     className="h-auto min-h-11 cursor-pointer rounded-xl border-pink-200 bg-white py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-pink-100 file:px-3 file:py-1 file:font-semibold file:text-rose-700 hover:file:bg-pink-200"
                   />
                   <p className="text-xs text-rose-700/65">
-                    MP3, WAV, M4A ou outro formato de áudio · até 50 MB
+                    MP3, WAV, M4A ou outro formato de áudio · até 100 MB
                   </p>
                 </div>
 
