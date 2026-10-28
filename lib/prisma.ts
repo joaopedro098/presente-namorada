@@ -11,10 +11,10 @@ if (!dbUrl) {
 
 // Log sanitizado para confirmar qual host o servidor do Next está enxergando
 try {
-  const parsed = new URL(dbUrl);
-  console.log(`✅ [Prisma] Conectando ao host: ${parsed.hostname} na porta: ${parsed.port}`);
+  
+  console.log(`✅ [Prisma] Conectando ao host`);
 } catch {
-  console.error("❌ [Prisma] ERRO FATAL: A DATABASE_URL está malformatada!", dbUrl);
+  console.error("❌ [Prisma] ERRO FATAL: A DATABASE_URL está malformatada!");
 }
 
 // Configura o pool do PG

@@ -37,3 +37,10 @@ model carta {
   remetente String
   destinatario String
 }
+model Song {
+  id        String   @id @default(uuid())
+  title     String
+  artist    String
+  url       String   // Caminho onde o arquivo de áudio ficou gravado
+  createdAt DateTime @default(now())
+}

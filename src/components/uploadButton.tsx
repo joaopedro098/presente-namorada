@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { CldUploadButton } from 'next-cloudinary';
-import { useState } from 'react';
-import type { CloudinaryUploadWidgetInfo } from 'next-cloudinary';
+import type { CloudinaryUploadWidgetInfo } from "next-cloudinary";
+import { CldUploadButton } from "next-cloudinary";
+import { useState } from "react";
 
 // 1. CORREÇÃO: Mudamos o nome da propriedade para bater com o MuralFotos (onUploadCompleto)
 interface UploadBotaoProps {
@@ -10,7 +10,8 @@ interface UploadBotaoProps {
 }
 
 export default function UploadBotao({ onUploadCompleto }: UploadBotaoProps) {
-  const [uploadedImage, setUploadedImage] = useState<CloudinaryUploadWidgetInfo | null>(null);
+  const [uploadedImage, setUploadedImage] =
+    useState<CloudinaryUploadWidgetInfo | null>(null);
 
   return (
     <div className="w-full flex flex-col gap-2 items-center justify-center">
@@ -18,21 +19,35 @@ export default function UploadBotao({ onUploadCompleto }: UploadBotaoProps) {
       <div className="bg-pink-100 hover:bg-pink-200 text-pink-700 font-medium py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm border border-pink-200 inline-block text-center text-sm">
         <CldUploadButton
           uploadPreset="carregar fotos"
+          options={{
+            sources: ["local", "camera"],
+            defaultSource: "local",
+            resourceType: "image",
+            multiple: false,
+            clientAllowedFormats: [
+              "jpg",
+              "jpeg",
+              "png",
+              "webp",
+              "heic",
+              "heif",
+            ],
+          }}
           onSuccess={(result) => {
-            if (result.info && typeof result.info !== 'string') {
+            if (result.info && typeof result.info !== "string") {
               const info = result.info as CloudinaryUploadWidgetInfo;
               setUploadedImage(info);
-              
+
               // Envia a url segura diretamente para a função do Mural de Fotos
               onUploadCompleto(info.secure_url);
-              console.log('Upload bem-sucedido:', info);
+              console.log("Upload bem-sucedido:", info);
             }
           }}
-          onQueuesEnd={(result, { widget }) => {
+          onQueuesEnd={(_result, { widget }) => {
             widget.close();
           }}
         >
-          Adione a nova foto da memoria 
+          Escolher foto da galeria ou tirar uma foto
         </CldUploadButton>
       </div>
 
