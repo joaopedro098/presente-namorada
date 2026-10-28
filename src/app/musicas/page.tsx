@@ -22,7 +22,7 @@ interface Song {
   url: string;
 }
 
-const maxFileSize = 100 * 1024 * 1024;
+const maxFileSize = 50 * 1024 * 1024;
 const allowedAudioExtensions = [
   "mp3",
   "wav",
@@ -83,7 +83,7 @@ export default function MusicasPage() {
     }
 
     if (file.size > maxFileSize) {
-      setError("O arquivo deve ter no máximo 100 MB.");
+      setError("No plano gratuito, o arquivo precisa ter no máximo 50 MB.");
       return;
     }
 
@@ -107,6 +107,26 @@ export default function MusicasPage() {
         });
 
       if (uploadError) {
+        const uploadMessage = uploadError.message.toLowerCase();
+        if (
+          uploadMessage.includes("too large") ||
+          uploadMessage.includes("limit") ||
+          uploadMessage.includes("exceed") ||
+          uploadMessage.includes("413")
+        ) {
+          throw new Error(
+            "O Supabase recusou o arquivo por tamanho. No plano gratuito, ele deve ter até 50 MB; confira também o limite do bucket songs.",
+          );
+        }
+        if (
+          uploadMessage.includes("storage") ||
+          uploadMessage.includes("quota") ||
+          uploadMessage.includes("space")
+        ) {
+          throw new Error(
+            "O armazenamento do Supabase está sem espaço. O limite por arquivo é 50 MB, mas pode ser necessário liberar espaço excluindo arquivos antigos.",
+          );
+        }
         throw new Error(
           `Não foi possível enviar o arquivo ao Supabase: ${uploadError.message}`,
         );
@@ -214,7 +234,7 @@ export default function MusicasPage() {
                     className="h-auto min-h-11 cursor-pointer rounded-xl border-pink-200 bg-white py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-pink-100 file:px-3 file:py-1 file:font-semibold file:text-rose-700 hover:file:bg-pink-200"
                   />
                   <p className="text-xs text-rose-700/65">
-                    MP3, WAV, M4A ou outro formato de áudio · até 100 MB
+                    MP3, WAV, M4A ou outro formato de áudio · até 50 MB
                   </p>
                 </div>
 
